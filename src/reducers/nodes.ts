@@ -27,6 +27,27 @@ export const checkNodesStatus = createAsyncThunk(
   }
 );
 
+export const getNodeBlocks = createAsyncThunk(
+  "nodes/getNodeBlocks",
+  async (node: Node) => {
+    const response = await fetch(`${node.url}/api/v1/blocks`);
+    // const data: { blocks: any } = await response.json();
+    const data = await response.json();
+    
+    return data;
+  }
+);
+
+export const getNodesBlocks = createAsyncThunk(
+  "nodes/getNodesBlocks",
+  async (nodes: Node[], thunkAPI) => {
+    const { dispatch } = thunkAPI;
+    nodes.forEach((node) => {
+      dispatch(getNodeBlocks(node));
+    });
+  }
+);
+
 export const nodesSlice = createSlice({
   name: "nodes",
   initialState: initialState().nodes as NodesState,
@@ -49,6 +70,13 @@ export const nodesSlice = createSlice({
       if (node) {
         node.online = false;
         node.loading = false;
+      }
+    });
+    builder.addCase(getNodeBlocks.fulfilled, (state, action) => {
+      const node = state.list.find((n) => n.url === action.meta.arg.url);
+      if (node) {
+        const data = action.payload
+        node.blocks = data.data
       }
     });
   },
