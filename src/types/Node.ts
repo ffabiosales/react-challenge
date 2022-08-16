@@ -3,4 +3,5 @@ export interface Node {
   name: string;
   url: string;
   loading: boolean;
+  blocks: any;
 }
